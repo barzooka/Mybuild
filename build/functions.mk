@@ -86,7 +86,9 @@ endef
 define build-executable
 ALL_MODULES += $(LOCAL_MODULE)
 INSTALL_BINS += $(call executable-full-path, $(LOCAL_MODULE))
+
 $(LOCAL_MODULE): $(call executable-full-path, $(LOCAL_MODULE))
+	
 
 $(call executable-full-path, $(LOCAL_MODULE)): $$(call static-full-path, $$(LOCAL_STATIC_LIBRARIES)) $$(call dynamic-full-path, $$(LOCAL_SHARED_LIBRARIES)) $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_BIN_DIR)
@@ -100,6 +102,7 @@ define build-dynamic
 ALL_MODULES += $(LOCAL_MODULE)
 INSTALL_LIBS += $(call dynamic-full-path, $(LOCAL_MODULE))
 $(LOCAL_MODULE): $(call dynamic-full-path, $(LOCAL_MODULE))
+	
 
 $(call dynamic-full-path, $(LOCAL_MODULE)): $$(call static-full-path, $$(LOCAL_STATIC_LIBRARIES)) $$(call dynamic-full-path, $$(LOCAL_SHARED_LIBRARIES)) $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_LIB_DIR)
@@ -111,7 +114,9 @@ endef
 
 define build-static
 ALL_MODULES += $(LOCAL_MODULE)
+
 $(LOCAL_MODULE): $(call static-full-path, $(LOCAL_MODULE))
+	
 
 $(call static-full-path, $(LOCAL_MODULE)): $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_OBJ_DIR)
