@@ -1,0 +1,5 @@
+#!/bin/bash
+MY_PATH=`which $0  |xargs ls -l | sed -r "s/.* //g" | sed -r "s/.*->//g"`
+MY=${MY_PATH%/*}
+
+$MY/copytemplate.sh shared.mk $@

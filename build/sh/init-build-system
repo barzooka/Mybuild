@@ -1,0 +1,13 @@
+#!/bin/bash
+MY=`which $0  |xargs ls -l | sed -r "s/.* //g" | sed -r "s/.*->//g"`
+BUILD_SOURCE_DIR=${MY%/*}/../../
+
+if [ ! -e configure.mk ]; then
+	cp $BUILD_SOURCE_DIR/configure.mk ./
+else
+	echo configure.mk is already exists.
+	exit -1
+fi
+
+ln -s $BUILD_SOURCE_DIR/Makefile ./
+ln -s $BUILD_SOURCE_DIR/build ./

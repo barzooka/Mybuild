@@ -1,13 +1,15 @@
 #!/bin/bash
 MY=`which $0  |xargs ls -l | sed -r "s/.* //g" | sed -r "s/.*->//g"`
-BUILD_SOURCE_DIR=${MY%/*}
+BUILD_SYS_DIR=${MY%/*}
 
-if [ ! -e configure.mk ]; then
-	cp $BUILD_SOURCE_DIR/configure.mk ./
+if [ $1 ]; then
+	INSTALL_TARGET=$1
 else
-	echo configure.mk is already exists.
-	exit -1
+	INSTALL_TARGET=/usr/bin
 fi
 
-ln -s $BUILD_SOURCE_DIR/Makefile ./
-ln -s $BUILD_SOURCE_DIR/build ./
+mkdir -p $INSTALL_TARGET
+
+PWD=`pwd`
+
+ln -s `find $PWD/$BUILD_SYS_DIR/build/sh/ -not -name *.sh -type f` $INSTALL_TARGET
