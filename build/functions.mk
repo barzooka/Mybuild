@@ -77,6 +77,7 @@ endef
 
 define translate-c-o
 LOCAL_OBJ_FILES += $(OBJ)
+BUILT_OBJS += $(OBJ)
 $(OBJ): $(1)
 	${hide}echo $(LOCAL_TARGET_TYPE) ${CC}: $(LOCAL_MODULE) '<=' $(1)
 	${hide}mkdir -p $(DIR)
@@ -85,7 +86,7 @@ endef
 
 define build-executable
 ALL_MODULES += $(LOCAL_MODULE)
-INSTALL_BINS += $(call executable-full-path, $(LOCAL_MODULE))
+BUILT_BINS += $(call executable-full-path, $(LOCAL_MODULE))
 
 $(LOCAL_MODULE): $(call executable-full-path, $(LOCAL_MODULE))
 	
@@ -100,7 +101,7 @@ endef
 
 define build-dynamic
 ALL_MODULES += $(LOCAL_MODULE)
-INSTALL_LIBS += $(call dynamic-full-path, $(LOCAL_MODULE))
+BUILT_LIBS += $(call dynamic-full-path, $(LOCAL_MODULE))
 $(LOCAL_MODULE): $(call dynamic-full-path, $(LOCAL_MODULE))
 	
 
@@ -114,7 +115,7 @@ endef
 
 define build-static
 ALL_MODULES += $(LOCAL_MODULE)
-
+BUILT_STATICS += $(call static-full-path, $(LOCAL_MODULE))
 $(LOCAL_MODULE): $(call static-full-path, $(LOCAL_MODULE))
 	
 
@@ -129,10 +130,10 @@ endef
 define build-debug
 $(LOCAL_MODULE)_debug:
 	${hide}echo ===================================
-	${hide}echo For LOCAL_MODULE  : $(LOCAL_MODULE)
-	${hide}echo LOCAL_PATH         : $(LOCAL_PATH)
-	${hide}echo LOCAL_SRC_FILES   : $(LOCAL_SRC_FILES)
-	${hide}echo LOCAL_OBJ_FILES   : $(LOCAL_OBJ_FILES)
+	${hide}echo For LOCAL_MODULE       : $(LOCAL_MODULE)
+	${hide}echo LOCAL_PATH             : $(LOCAL_PATH)
+	${hide}echo LOCAL_SRC_FILES        : $(LOCAL_SRC_FILES)
+	${hide}echo LOCAL_OBJ_FILES        : $(LOCAL_OBJ_FILES)
 	${hide}echo LOCAL_CFLAGS           : $(LOCAL_CFLAGS)
 	${hide}echo LOCAL_SHARED_LIBRARIES : $(LOCAL_SHARED_LIBRARIES)
 	${hide}echo LOCAL_STATIC_LIBRARIES : $(LOCAL_STATIC_LIBRARIES)
