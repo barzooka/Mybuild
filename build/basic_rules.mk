@@ -65,17 +65,23 @@ info: $(addsuffix _debug, $(ALL_MODULES))
 
 install_bins: $(BUILT_BINS)
 	$(hide)mkdir -p $(INSTALL_BIN_DIR)
+	$(hide)echo "INSTALLING EXECUTABLE(s) TO:" $(INSTALL_BIN_DIR):
+	$(hide)echo $(BUILT_BINS)
 	$(hide)cp $(BUILT_BINS) $(INSTALL_BIN_DIR)
 
 install_libs: $(BUILT_LIBS)
 	$(hide)mkdir -p $(INSTALL_LIB_DIR)
+	$(hide)echo "INSTALLING SHARED LIBRARY(ies) TO:" $(INSTALL_LIB_DIR):
+	$(hide)echo $(BUILT_LIBS)
 	$(hide)cp $(BUILT_LIBS) $(INSTALL_LIB_DIR)
 
 uninstall_libs:
+	$(hide)echo "REMOVING SHARED LIBRARY(ies):"  $(patsubst $(BUILD_LIB_DIR)%, $(INSTALL_LIB_DIR)%,$(BUILT_LIBS)) -rf
 	$(hide)rm $(patsubst $(BUILD_LIB_DIR)%, $(INSTALL_LIB_DIR)%,$(BUILT_LIBS)) -rf
 	$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(INSTALL_LIB_DIR)
 
 uninstall_bins:
+	$(hide)echo "REMOVING EXECUTABLE(s):"  $(patsubst $(BUILD_BIN_DIR)%, $(INSTALL_BIN_DIR)%,$(BUILT_BINS)) -rf
 	$(hide)rm $(patsubst $(BUILD_BIN_DIR)%, $(INSTALL_BIN_DIR)%,$(BUILT_BINS)) -rf
 	$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(INSTALL_BIN_DIR)
 
