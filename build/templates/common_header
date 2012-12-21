@@ -1,0 +1,24 @@
+#########################################################################
+#     Mybuild make file for modules
+#
+#     The basic rule of this file is the same with Android build system.
+#     A typical format of this file is:
+#
+#     LOCAL_DIR := $(call my-dir)
+#
+#     include $(CLEAR_VARS)
+#     LOCAL_MODULE := module1
+#     # Set other variables
+#     include $(BUILD_XXXXX) # where XXXXX is the type of this module
+#
+#     include $(CLEAR_VARS)
+#     LOCAL_MODULE := module2
+#     # Set other variables
+#     include $(BUILD_XXXXX) # where XXXXX is the type of this module
+#
+#     # module3 module4 ....
+#-----------------------------------------------------------------------
+
+# LOCAL_PATH indicates where your source code are
+LOCAL_PATH := $(call my-dir)
+

@@ -1,7 +1,3 @@
-#------------------------------------------------------------------------------------
-# LOCAL_PATH indicates where your source code are
-LOCAL_PATH:= $(call my-dir)
-
 # $(CLEAR_VARS) must be included at the begining of the file.
 # DON'T call '$(call my-dir)' after 'include $(CLEAR_VARS)' and any other make files
 include $(CLEAR_VARS)
