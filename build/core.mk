@@ -14,10 +14,8 @@ INSTALLED_PREBUILTS :=
 
 ALL_MODULES :=
 
-include configure.mk
-
 all: ${CONTENTS}
-	${hide}echo Build Finished!
+	${hide}echo Building Finished!
 
 ifeq ($(PRINT_COMMANDS), true)
 hide := 
@@ -35,8 +33,12 @@ BUILD_STATIC_LIBRARY := ${BUILD_ROOT_DIR}/build_static.mk
 BUILD_SHARED_LIBRARY := ${BUILD_ROOT_DIR}/build_dynamic.mk
 BUILD_PREBUILT := ${BUILD_ROOT_DIR}/build_prebuilt.mk
 
-ALL_MAKE_FILES := $(call all-named-files-under, $(TOP_DIR), $(MAKE_FILE_NAME))
-include $(ALL_MAKE_FILES)
+ifeq ($(ONE_SHOT_MAKEFILES),)
+    ALL_MAKE_FILES := $(call all-named-files-under, $(TOP_DIR), $(MAKE_FILE_NAME))
+    include $(ALL_MAKE_FILES)
+else
+    include $(ONE_SHOT_MAKEFILES)
+endif
 
 
 include ${BUILD_ROOT_DIR}/basic_rules.mk

@@ -89,3 +89,5 @@ uninstall_prebuilts:
 	$(hide)rm $(INSTALLED_PREBUILTS) -rf
 	$(hide)$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(dir $(INSTALLED_PREBUILTS))
 
+all_modules: $(ALL_MODULES)
+	$(hide)echo Building Finished!

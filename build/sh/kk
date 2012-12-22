@@ -1,0 +1,60 @@
+#!/bin/bash
+MY_PATH=`which $0  |xargs ls -l | sed -r "s/.* //g" | sed -r "s/.*->//g"`
+MY=${MY_PATH%/*}
+
+BUILD_TOP=`$MY/findconfig.sh MAKE_FILE_NAME --path`
+
+if [ ! $BUILD_TOP ]; then
+    echo "Error: Can not locate the build root path which contains configure.mk"
+    exit -1
+fi
+
+MAKE_FILE_NAME=`$MY/findconfig.sh MAKE_FILE_NAME`
+
+ARGS=$@
+
+CHECK_RESULT=OK
+
+# BUILD PATH CHECK
+for ARG in $ARGS; do
+    # if the args is started with '-', pass it to make
+    if [ ${ARG:0:1} == "-" ]; then
+        MAKE_ARGS=$MAKE_ARGS" "$ARG
+        continue
+    fi 
+
+    echo Checking: $ARG/$MAKE_FILE_NAME
+
+    if [ ${ARG:0:1} == "/" ]; then
+        echo Warning: Absolote path is not safe.
+    else
+        ARG=`pwd`/$ARG
+    fi
+
+    MAKE_FILE=$ARG/$MAKE_FILE_NAME
+
+    if [ -f $MAKE_FILE ]; then
+        FOUND_ONE_SHOT_MAKEFILES=$FOUND_ONE_SHOT_MAKEFILES" "$MAKE_FILE
+    else
+        echo "Error: Can not find $MAKE_FILE_NAME in specified path $ARG"
+        CHECK_RESULT=NG
+    fi
+done
+
+if [ $CHECK_RESULT == "NG" ]; then
+    echo Build failed!
+    exit -1
+fi
+
+if [ ${#FOUND_ONE_SHOT_MAKEFILES} -eq 0 ]; then
+    if [ -f $MAKE_FILE_NAME ]; then
+        FOUND_ONE_SHOT_MAKEFILES=`pwd`/$MAKE_FILE_NAME
+    else
+        echo "Error: Can not find $MAKE_FILE_NAME in current directory."
+        exit -1
+    fi
+fi
+
+# BEGIN BUILD
+#echo BUILD with args: $MAKE_ARGS, build target=$FOUND_ONE_SHOT_MAKEFILES
+ONE_SHOT_MAKEFILES=$FOUND_ONE_SHOT_MAKEFILES make -C $BUILD_TOP all_modules
