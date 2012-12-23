@@ -1,11 +1,16 @@
 # specified the root dir of source code
 TOP_DIR := $(shell pwd)
 
+$(if $(BUILD_ROOT_DIR),, $(error No BUILD_ROOT_DIR specified in configure.mk))
+
+include $(BUILD_ROOT_DIR)/configuration_check.mk
+
 BUILT_LIBS :=
 BUILT_BINS :=
 BUILT_OBJS :=
 BUILT_STATICS :=
 BUILT_PREBUILTS :=
+BUILT_SHORT_CUTS :=
 
 INSTALLED_LIBS :=
 INSTALLED_BINS :=

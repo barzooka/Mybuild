@@ -1,0 +1,4 @@
+#!/bin/bash
+# All the path should be absolute
+LD_LIBRARY_PATH=_TEMP_LIB_PATH_ _TEMP_PROG_NAME_
+

@@ -11,6 +11,8 @@ BUILD_OBJ_DIR := $(BUILD_OUT_DIR)/obj
 BUILD_BIN_DIR := $(BUILD_OUT_DIR)/bin
 BUILD_LIB_DIR := $(BUILD_OUT_DIR)/lib
 
+BUILD_SHORTCUT_DIR := ./
+
 # Specify the makefile name used to build a certain module
 MAKE_FILE_NAME := build.mk
 

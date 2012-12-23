@@ -10,6 +10,10 @@ define dynamic-full-path
 $(addprefix $(BUILD_LIB_DIR)/, $(addsuffix .so, $(1)))
 endef
 
+define shortcut-full-path
+$(addprefix $(BUILD_SHORTCUT_DIR)/, $(addsuffix .sh, $(1)))
+endef
+
 define executable-full-path
 $(addprefix $(BUILD_BIN_DIR)/, $(1))
 endef
@@ -93,7 +97,7 @@ define translate-c-o
 LOCAL_OBJ_FILES += $(OBJ)
 BUILT_OBJS += $(OBJ)
 $(OBJ): $(1)
-	${hide}echo $(LOCAL_MODULE_TYPE) ${CC}: $(LOCAL_MODULE) '<=' $(1)
+	${hide}echo ${CC}: $(LOCAL_MODULE) '<=' $(1)
 	${hide}mkdir -p $(DIR)
 	${hide}$(CC) $(GLOBAL_CFLAGS) $(LOCAL_CFLAGS) -c $(1) -o $(OBJ)
 endef
@@ -101,6 +105,7 @@ endef
 define build-executable
 ALL_MODULES += $(LOCAL_MODULE)
 BUILT_BINS += $(call executable-full-path, $(LOCAL_MODULE))
+BUILT_SHORT_CUTS += $(call executable-full-path, $(LOCAL_MODULE).sh)
 
 $(LOCAL_MODULE): $(call executable-full-path, $(LOCAL_MODULE))
 	
@@ -108,7 +113,10 @@ $(LOCAL_MODULE): $(call executable-full-path, $(LOCAL_MODULE))
 $(call executable-full-path, $(LOCAL_MODULE)): $$(call static-full-path, $$(LOCAL_STATIC_LIBRARIES)) $$(call dynamic-full-path, $$(LOCAL_SHARED_LIBRARIES)) $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_BIN_DIR)
 	${hide}$(CC) $(LOCAL_OBJ_FILES) $(call static-full-path, $(LOCAL_STATIC_LIBRARIES)) $(LOCAL_LD_ARGS) -o $(BUILD_BIN_DIR)/$(LOCAL_MODULE)
-	${hide}echo $(LOCAL_MODULE_TYPE) Finished: $(call executable-full-path, $(LOCAL_MODULE))
+	${hide}echo Finished: $(call executable-full-path, $(LOCAL_MODULE)) "($(LOCAL_MODULE_TYPE))"
+	${hide}cat $(BUILD_ROOT_DIR)/templates/runner | sed -r "s/_TEMP_LIB_PATH_/$(strip $(subst /,\/, $(abspath $(BUILD_LIB_DIR))))/g" | sed -r "s/_TEMP_PROG_NAME_/$(subst /,\\/,$(abspath $(call executable-full-path, $(LOCAL_MODULE))))/g" > $(call shortcut-full-path, $(LOCAL_MODULE))
+	${hide}chmod a+x $(call shortcut-full-path, $(LOCAL_MODULE))
+	${hide}echo Finished: To execute without installation, run '$(call shortcut-full-path, $(LOCAL_MODULE))'
 
 $(eval $(call build-debug))
 endef
@@ -122,7 +130,7 @@ $(LOCAL_MODULE): $(call dynamic-full-path, $(LOCAL_MODULE))
 $(call dynamic-full-path, $(LOCAL_MODULE)): $$(call static-full-path, $$(LOCAL_STATIC_LIBRARIES)) $$(call dynamic-full-path, $$(LOCAL_SHARED_LIBRARIES)) $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_LIB_DIR)
 	${hide}$(CC) $(LOCAL_OBJ_FILES) $(call static-full-path, $(LOCAL_STATIC_LIBRARIES)) $(LOCAL_LD_ARGS) -shared -o $(BUILD_LIB_DIR)/$(LOCAL_MODULE).so
-	${hide}echo $(LOCAL_MODULE_TYPE) Finished: $(call dynamic-full-path, $(LOCAL_MODULE))
+	${hide}echo Finished: $(call dynamic-full-path, $(LOCAL_MODULE)) "($(LOCAL_MODULE_TYPE))"
 
 $(eval $(call build-debug))
 endef
@@ -136,7 +144,7 @@ $(LOCAL_MODULE): $(call static-full-path, $(LOCAL_MODULE))
 $(call static-full-path, $(LOCAL_MODULE)): $(LOCAL_OBJ_FILES)
 	${hide}mkdir -p $(BUILD_OBJ_DIR)
 	${hide}$(AR) rcs $(BUILD_OBJ_DIR)/$(LOCAL_MODULE).a $(LOCAL_OBJ_FILES)
-	${hide}echo $(LOCAL_MODULE_TYPE) Finished: $(call static-full-path, $(LOCAL_MODULE))
+	${hide}echo Finished: $(call static-full-path, $(LOCAL_MODULE)) "($(LOCAL_MODULE_TYPE))"
 
 $(eval $(call build-debug))
 endef
@@ -159,7 +167,7 @@ $(if $(filter install, $(LOCAL_PREBUILT_TYPE)), \
 )
 
 $(LOCAL_MODULE): $(call prebuilt-full-path, $(LOCAL_SRC_FILES))
-	${hide}echo $(LOCAL_MODULE_TYPE) $(LOCAL_PREBUILT_TYPE) Finished: $(LOCAL_MODULE)
+	${hide}echo Finished: $(LOCAL_MODULE) "($(LOCAL_MODULE_TYPE) $(LOCAL_PREBUILT_TYPE))"
 
 $(foreach src, $(LOCAL_SRC_FILES), \
     $(eval $(call cp-single-file, $(src), \
