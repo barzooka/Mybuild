@@ -1,9 +1,20 @@
-BUILT_RESULT := ${BUILT_BINS} ${BUILT_OBJS} ${BUILT_LIBS} ${BUILT_STATICS} ${BUILT_PREBUILTS} ${BUILT_SHORT_CUTS}
+BUILT_RESULT := ${BUILT_BINS} \
+                ${BUILT_OBJS} \
+                ${BUILT_LIBS} \
+                ${BUILT_STATICS} \
+                ${BUILT_PREBUILTS} \
+                ${BUILT_SHORT_CUTS} \
+                ${BUILT_JAVA_BINS} \
+                ${BUILT_JAVA_LIBS}
 
 ifeq ($(BUILT_RESULT),)
-CLEAN_IF :=
+    ifeq ($(BUILT_JAVA_CLASS_PATHES),)
+        CLEAN_IF :=
+    else
+        CLEAN_IF := clean_all
+    endif
 else
-CLEAN_IF := clean_all
+    CLEAN_IF := clean_all
 endif
 
 ifeq ($(BUILT_BINS),)
@@ -32,8 +43,9 @@ clean: $(CLEAN_IF)
 	${hide}echo Clean finished!
 
 clean_all:
+	${hide}$(BUILD_ROOT_DIR)/sh/cleanjavacoutput.sh $(BUILT_JAVA_CLASS_PATHES)
 	${hide}rm $(BUILT_RESULT) -rf
-	${hide}$(BUILD_ROOT_DIR)/sh/cleandir.sh $(dir $(BUILT_RESULT))
+	${hide}$(BUILD_ROOT_DIR)/sh/cleandir.sh $(dir $(BUILT_RESULT)) $(BUILT_JAVA_CLASS_PATHES)
 
 hello-build-system:
 	${hide}echo =======================================================================

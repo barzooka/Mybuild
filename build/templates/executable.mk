@@ -22,4 +22,3 @@ LOCAL_SHARED_LIBRARIES :=
 
 # Include the make file which solves the variables above, and generate the rules for this module
 include $(BUILD_EXECUTABLE)
-

@@ -2,6 +2,18 @@ define source-to-o
 $(patsubst %.c, %.o, $(patsubst %.cpp, %.o, $(patsubst %.cc, %.o, $(patsubst %.s, %.o, $(patsubst %.S, %.o, $(1))))))
 endef
 
+define java-to-class
+$(patsubst %.java,%.class, $(1))
+endef
+
+define java-lib-full-path
+$(addprefix $(BUILD_JAVA_LIB_DIR)/, $(addsuffix .jar, $(1)))
+endef
+
+define java-bin-full-path
+$(addprefix $(BUILD_JAVA_BIN_DIR)/, $(addsuffix .jar, $(1)))
+endef
+
 define static-full-path
 $(addprefix $(BUILD_OBJ_DIR)/, $(addsuffix .a, $(1)))
 endef
@@ -89,7 +101,7 @@ LOCAL_MODULE_TYPE := $(1)
 endef
 
 define prepare-translate-c-o
-OBJ := $(patsubst ./%,%, $(addprefix $(BUILD_OBJ_DIR)/, $(call source-to-o, $(1))))
+OBJ := $(patsubst ./%,%, $(addprefix $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)/, $(call source-to-o, $(1))))
 DIR = $$(dir $$(OBJ))
 endef
 
@@ -153,6 +165,32 @@ define cp-single-file
 $(2): $(1)
 	${hide}mkdir -p $(dir $(2))
 	${hide}cp $(1) $(2) -r
+endef
+
+define build-java-jar
+# $(1) full-path
+ALL_MODULES += $(LOCAL_MODULE)
+
+ifeq ($LOCAL_MODULE_TYPE,JAVA_EXECUTABLE)
+BUILT_JAVA_BINS += $(1)
+else ifeq ($LOCAL_MODULE_TYPE,JAVA_LIBRARY)
+BUILT_JAVA_LIBS += $(1)
+endif
+
+BUILT_JAVA_CLASS_PATHES += $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
+
+$(LOCAL_MODULE): $(1)
+	
+
+$(1): $(LOCAL_SRC_FILES) $(LOCAL_JAVA_LIBRARIES)
+	${hide}mkdir -p $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
+	${hide}echo java : $(LOCAL_MODULE)
+	${hide}javac -Djava.ext.dirs=$(BUILD_JAVA_BIN_DIR):$(BUILD_JAVA_LIB_DIR) $(LOCAL_SRC_FILES) -d $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
+	${hide}echo packaging: $(LOCAL_MODULE)
+	${hide}jar cef $(LOCAL_JAVA_MAIN_ENTRY) $(1) -C $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)/ .
+	${hide}echo Finished: $(1)
+
+$(eval $(call build-debug))
 endef
 
 define build-prebuilt

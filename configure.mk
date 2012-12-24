@@ -10,7 +10,8 @@ BUILD_OUT_DIR := out
 BUILD_OBJ_DIR := $(BUILD_OUT_DIR)/obj
 BUILD_BIN_DIR := $(BUILD_OUT_DIR)/bin
 BUILD_LIB_DIR := $(BUILD_OUT_DIR)/lib
-
+BUILD_JAVA_LIB_DIR := $(BUILD_OUT_DIR)/java/lib
+BUILD_JAVA_BIN_DIR := $(BUILD_OUT_DIR)/java/
 BUILD_SHORTCUT_DIR := ./
 
 # Specify the makefile name used to build a certain module
@@ -30,3 +31,7 @@ INSTALL_BIN_DIR := ~/bin
 
 # where to install the shared libraries
 INSTALL_LIB_DIR := /usr/lib
+
+# where to install your java apps
+INSTALL_JAVA_BIN_DIR := ~/MyJava/
+INSTALL_JAVA_LIB_DIR := ~/MyJava/libs
