@@ -12,6 +12,6 @@ for dir in $@ ; do
 	fi
 
 	if [ -d $dir ]; then
-		rmdir -p --ignore-fail-on-non-empty $dir
+		rmdir -p --ignore-fail-on-non-empty $dir >/dev/null 2>&1
 	fi
 done

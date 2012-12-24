@@ -6,12 +6,8 @@ define java-to-class
 $(patsubst %.java,%.class, $(1))
 endef
 
-define java-lib-full-path
-$(addprefix $(BUILD_JAVA_LIB_DIR)/, $(addsuffix .jar, $(1)))
-endef
-
-define java-bin-full-path
-$(addprefix $(BUILD_JAVA_BIN_DIR)/, $(addsuffix .jar, $(1)))
+define java-full-path
+$(addprefix $(BUILD_JAVA_DIR)/, $(addsuffix .jar, $(1)))
 endef
 
 define static-full-path
@@ -117,7 +113,7 @@ endef
 define build-executable
 ALL_MODULES += $(LOCAL_MODULE)
 BUILT_BINS += $(call executable-full-path, $(LOCAL_MODULE))
-BUILT_SHORT_CUTS += $(call executable-full-path, $(LOCAL_MODULE).sh)
+BUILT_SHORT_CUTS += $(call shortcut-full-path, $(LOCAL_MODULE))
 
 $(LOCAL_MODULE): $(call executable-full-path, $(LOCAL_MODULE))
 	
@@ -128,7 +124,7 @@ $(call executable-full-path, $(LOCAL_MODULE)): $$(call static-full-path, $$(LOCA
 	${hide}echo Finished: $(call executable-full-path, $(LOCAL_MODULE)) "($(LOCAL_MODULE_TYPE))"
 	${hide}cat $(BUILD_ROOT_DIR)/templates/runner | sed -r "s/_TEMP_LIB_PATH_/$(strip $(subst /,\/, $(abspath $(BUILD_LIB_DIR))))/g" | sed -r "s/_TEMP_PROG_NAME_/$(subst /,\\/,$(abspath $(call executable-full-path, $(LOCAL_MODULE))))/g" > $(call shortcut-full-path, $(LOCAL_MODULE))
 	${hide}chmod a+x $(call shortcut-full-path, $(LOCAL_MODULE))
-	${hide}echo Finished: To execute without installation, run '$(call shortcut-full-path, $(LOCAL_MODULE))'
+	${hide}echo --------- To execute without installation, run '$(call shortcut-full-path, $(LOCAL_MODULE))'
 
 $(eval $(call build-debug))
 endef
@@ -161,36 +157,42 @@ $(call static-full-path, $(LOCAL_MODULE)): $(LOCAL_OBJ_FILES)
 $(eval $(call build-debug))
 endef
 
-define cp-single-file
-$(2): $(1)
-	${hide}mkdir -p $(dir $(2))
-	${hide}cp $(1) $(2) -r
-endef
-
 define build-java-jar
 # $(1) full-path
 ALL_MODULES += $(LOCAL_MODULE)
 
-ifeq ($LOCAL_MODULE_TYPE,JAVA_EXECUTABLE)
-BUILT_JAVA_BINS += $(1)
-else ifeq ($LOCAL_MODULE_TYPE,JAVA_LIBRARY)
-BUILT_JAVA_LIBS += $(1)
-endif
+BUILT_JAVA += $(call java-full-path, $(LOCAL_MODULE))
 
 BUILT_JAVA_CLASS_PATHES += $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
 
-$(LOCAL_MODULE): $(1)
+ifeq ($(LOCAL_MODULE_TYPE), JAVA-EXECUTABLE)
+BUILT_SHORT_CUTS += $(call shortcut-full-path, $(LOCAL_MODULE))
+endif
+
+$(LOCAL_MODULE): $(call java-full-path, $(LOCAL_MODULE))
 	
 
-$(1): $(LOCAL_SRC_FILES) $(LOCAL_JAVA_LIBRARIES)
+$(call java-full-path, $(LOCAL_MODULE)): $(LOCAL_SRC_FILES) $(call java-full-path, $(LOCAL_JAVA_LIBRARIES))
 	${hide}mkdir -p $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
-	${hide}echo java : $(LOCAL_MODULE)
-	${hide}javac -Djava.ext.dirs=$(BUILD_JAVA_BIN_DIR):$(BUILD_JAVA_LIB_DIR) $(LOCAL_SRC_FILES) -d $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
+	${hide}echo javac: $(LOCAL_MODULE)
+	${hide}javac -Djava.ext.dirs=$(BUILD_JAVA_DIR) $(LOCAL_SRC_FILES) -d $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)
 	${hide}echo packaging: $(LOCAL_MODULE)
-	${hide}jar cef $(LOCAL_JAVA_MAIN_ENTRY) $(1) -C $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)/ .
-	${hide}echo Finished: $(1)
+	${hide}mkdir -p $(dir $(call java-full-path, $(LOCAL_MODULE)))
+	${hide}jar $(LOCAL_JAR_OPERATION) $(LOCAL_JAVA_MAIN_ENTRY) $(call java-full-path, $(LOCAL_MODULE)) -C $(BUILD_OBJ_DIR)/$(LOCAL_MODULE)/ .
+	${hide}echo Finished: $(call java-full-path, $(LOCAL_MODULE)) "($(LOCAL_MODULE_TYPE))"
+ifeq ($(LOCAL_MODULE_TYPE), JAVA-EXECUTABLE)
+	${hide}cat $(BUILD_ROOT_DIR)/templates/java_runner | sed -r "s/_TEMP_JAVA_LIB_PATH_/$(strip $(subst /,\/, $(abspath $(BUILD_JAVA_DIR))))/g" | sed -r "s/_TEMP_PROG_NAME_/$(subst /,\\/,$(abspath $(call java-full-path, $(LOCAL_MODULE))))/g" > $(call shortcut-full-path, $(LOCAL_MODULE))
+	${hide}chmod a+x $(call shortcut-full-path, $(LOCAL_MODULE))
+	${hide}echo --------- To execute without installation, run '$(call shortcut-full-path, $(LOCAL_MODULE))'
+endif
 
 $(eval $(call build-debug))
+endef
+
+define cp-single-file
+$(2): $(1)
+	${hide}mkdir -p $(dir $(2))
+	${hide}cp $(1) $(2) -r
 endef
 
 define build-prebuilt

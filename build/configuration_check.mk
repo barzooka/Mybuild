@@ -4,9 +4,9 @@
 $(if $(MAKE_FILE_NAME),,$(error No MAKE_FILE_NAME specified in configure.mk))
 
 ifeq ($(BUILD_SHORTCUT_DIR),)
-BUILD_SHORTCUT_DIR:=.
+BUILD_SHORTCUT_DIR := .
 else
-$(patsubst %/,%, $(BUILD_SHORTCUT_DIR))
+BUILD_SHORTCUT_DIR := $(patsubst %/,%,$(BUILD_SHORTCUT_DIR))
 endif
 
 ifeq ($(BUILD_OUT_DIR),)

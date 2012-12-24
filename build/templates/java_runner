@@ -1,0 +1,3 @@
+#!/bin/bash
+# All the path should be absolute
+java -Djava.ext.dirs=_TEMP_JAVA_LIB_PATH_ -jar _TEMP_PROG_NAME_ $@

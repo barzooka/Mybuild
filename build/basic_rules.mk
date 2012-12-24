@@ -4,8 +4,7 @@ BUILT_RESULT := ${BUILT_BINS} \
                 ${BUILT_STATICS} \
                 ${BUILT_PREBUILTS} \
                 ${BUILT_SHORT_CUTS} \
-                ${BUILT_JAVA_BINS} \
-                ${BUILT_JAVA_LIBS}
+                ${BUILT_JAVA}
 
 ifeq ($(BUILT_RESULT),)
     ifeq ($(BUILT_JAVA_CLASS_PATHES),)
@@ -33,6 +32,14 @@ INSTALL_LIBS_IF := install_libs
 UNINSTALL_LIBS_IF := uninstall_libs
 endif
 
+ifeq ($(BUILT_JAVA),)
+INSTALL_JAVA_IF :=
+UNINSTALL_JAVA_IF :=
+else
+INSTALL_JAVA_IF := install_jars
+UNINSTALL_JAVA_IF := uninstall_jars
+endif
+
 ifeq ($(INSTALLED_PREBUILTS),)
 UNINSTALL_PREBUILTS_IF :=
 else
@@ -54,9 +61,9 @@ hello-build-system:
 	${hide}echo To start, add a build target name in CONTENTS variable in configure.mk.
 	${hide}echo =======================================================================
 
-install: $(INSTALL_LIBS_IF) $(INSTALL_BINS_IF) $(INSTALLED_PREBUILTS)
+install: $(INSTALL_LIBS_IF) $(INSTALL_BINS_IF) $(INSTALLED_PREBUILTS) $(INSTALL_JAVA_IF)
 
-uninstall: $(UNINSTALL_LIBS_IF) $(UNINSTALL_BINS_IF) $(UNINSTALL_PREBUILTS_IF)
+uninstall: $(UNINSTALL_LIBS_IF) $(UNINSTALL_BINS_IF) $(UNINSTALL_PREBUILTS_IF) $(UNINSTALL_JAVA_IF)
 
 info: $(addsuffix _debug, $(ALL_MODULES))
 	$(hide)echo =========================
@@ -87,15 +94,26 @@ install_libs: $(BUILT_LIBS)
 	$(hide)echo $(BUILT_LIBS)
 	$(hide)cp $(BUILT_LIBS) $(INSTALL_LIB_DIR)
 
+install_jars: $(BUILT_JAVA)
+	$(hide)mkdir -p $(INSTALL_JAVA_DIR)
+	$(hide)echo "INSTALLING JAVA JAR(s) TO:" $(INSTALL_JAVA_DIR):
+	$(hide)echo $(BUILT_JAVA)
+	$(hide)cp $(BUILT_JAVA) $(INSTALL_JAVA_DIR)
+
 uninstall_libs:
-	$(hide)echo "REMOVING SHARED LIBRARY(ies):"  $(patsubst $(BUILD_LIB_DIR)%, $(INSTALL_LIB_DIR)%,$(BUILT_LIBS)) -rf
+	$(hide)echo "REMOVING SHARED LIBRARY(ies):"  $(patsubst $(BUILD_LIB_DIR)%, $(INSTALL_LIB_DIR)%,$(BUILT_LIBS))
 	$(hide)rm $(patsubst $(BUILD_LIB_DIR)%, $(INSTALL_LIB_DIR)%,$(BUILT_LIBS)) -rf
 	$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(INSTALL_LIB_DIR)
 
 uninstall_bins:
-	$(hide)echo "REMOVING EXECUTABLE(s):"  $(patsubst $(BUILD_BIN_DIR)%, $(INSTALL_BIN_DIR)%,$(BUILT_BINS)) -rf
+	$(hide)echo "REMOVING EXECUTABLE(s):"  $(patsubst $(BUILD_BIN_DIR)%, $(INSTALL_BIN_DIR)%,$(BUILT_BINS))
 	$(hide)rm $(patsubst $(BUILD_BIN_DIR)%, $(INSTALL_BIN_DIR)%,$(BUILT_BINS)) -rf
 	$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(INSTALL_BIN_DIR)
+
+uninstall_jars:
+	$(hide)echo "REMOVEING JAVA JARS(s):" $(patsubst $(BUILD_JAVA_DIR)%, $(INSTALL_JAVA_DIR)%,$(BUILT_JAVA))
+	$(hide)rm  $(patsubst $(BUILD_JAVA_DIR)%, $(INSTALL_JAVA_DIR)%,$(BUILT_JAVA)) -rf
+	$(hide)$(BUILD_ROOT_DIR)/sh/cleandir.sh $(INSTALL_JAVA_DIR)
 
 uninstall_prebuilts:
 	$(hide)rm $(INSTALLED_PREBUILTS) -rf
